@@ -1,0 +1,17 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+
+# Idea
+.idea
+*.iml
+*.iws
+*.ipr
+
+# Maven
+target
