@@ -1,37 +1,27 @@
 package com.monika.klimczak.logic;
 
-import java.util.Set;
+import lombok.EqualsAndHashCode;
 
-public class WordPair {
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+@EqualsAndHashCode
+class WordPair {
 
     final String word;
-    final Set<String> translations;
+    final Set<String> translations = new HashSet<>();
 
     WordPair(final String word, final Set<String> translations) {
         this.word = word;
-        this.translations = translations;
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
-
-        if (that instanceof WordPair) {
-            return this.word.equals(((WordPair) that).word)
-                    && this.translations.equals(((WordPair) that).translations);
-        }
-
-        return false;
-    }
-
-    void updateTranslation(final String translation, final String replacement) {
-        this.translations.remove(translation);
-        this.translations.add(replacement);
-    }
-
-    void addTranslations(final Set<String> translations) {
         this.translations.addAll(translations);
     }
+
+    BiConsumer<String, String> updateTranslation = (translation, newTranslation) -> {
+        this.translations.remove(translation);
+        this.translations.add(newTranslation);
+    };
+
+    Consumer<Set<String>> addTranslations = this.translations::addAll;
 }

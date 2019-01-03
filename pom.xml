@@ -7,6 +7,7 @@
     <groupId>com.monika.klimczak</groupId>
     <artifactId>book-your-language</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>10</maven.compiler.source>
@@ -14,6 +15,12 @@
     </properties>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.4</version>
+        </dependency>
 
         <!--TEST-->
         <dependency>

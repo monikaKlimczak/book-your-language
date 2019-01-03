@@ -1,6 +1,7 @@
 package com.monika.klimczak.logic;
 
 import java.util.*;
+import java.util.function.*;
 
 class Words {
 
@@ -10,56 +11,45 @@ class Words {
         this.wordsPairs = new ArrayList<>();
     }
 
-    void add(final String word, final Set<String> translations) {
-        wordsPairs.stream()
-                .filter(wordPair -> wordPair.word.equals(word))
-                .findFirst()
-                .ifPresentOrElse(wordPair -> wordPair.addTranslations(translations),
-                        () -> wordsPairs.add(new WordPair(word, translations)));
-    }
+    BiConsumer<String, Set<String>> add = (word, translations) ->
+            wordsPairs.stream()
+                    .filter(wordPair -> wordPair.word.equals(word))
+                    .findFirst()
+                    .ifPresentOrElse(wordPair -> wordPair.addTranslations.accept(translations),
+                            () -> wordsPairs.add(new WordPair(word, translations)));
 
-    boolean contains(final String word, final Set<String> translations) {
-        return wordsPairs.contains(new WordPair(word, translations));
-    }
+    BiFunction<String, Set<String>,  Boolean> contains = (word, translations) ->
+            wordsPairs.contains(new WordPair(word, translations));
 
-    boolean areEmpty() {
-        return wordsPairs.isEmpty();
-    }
+    Supplier<Boolean> areWordsEmpty = () -> wordsPairs.isEmpty();
 
-    void remove(final String word, final Set<String> translations) {
-        wordsPairs.remove(new WordPair(word, translations));
-    }
+    BiConsumer<String, Set<String>> remove = (word, translations) ->
+            wordsPairs.remove(new WordPair(word, translations));
 
-    void updateWord(final String word, final String newWord) {
-        Optional<WordPair> foundWordPair = wordsPairs.stream()
-                .filter(wordPair -> wordPair.word.equals(word))
-                .findFirst();
+    Function<String, Optional<WordPair>> findWordPairByWord = (word) ->
+            wordsPairs.stream()
+                    .filter(wordPair -> wordPair.word.equals(word))
+                    .findFirst();
 
-        foundWordPair.ifPresent(pair -> {
-            wordsPairs.remove(pair);
-            wordsPairs.add(new WordPair(newWord, pair.translations));
-        });
-    }
+    private Function<Set<String>, Optional<WordPair>> findWordPairByTranslations = (translations) ->
+            wordsPairs.stream()
+                    .filter(wordPair -> wordPair.translations.containsAll(translations))
+                    .findFirst();
 
-    void updateTranslation(final Set<String> oldTranslations, final Set<String> newTranslations) {
-        Optional<WordPair> foundPair = wordsPairs.stream()
-                .filter(wordPair -> wordPair.translations.containsAll(oldTranslations))
-                .findFirst();
+    BiConsumer<String, String> updateWord = (word, newWord) ->
+            findWordPairByWord.apply(word).ifPresent(wordPair -> {
+                wordsPairs.remove(wordPair);
+                wordsPairs.add(new WordPair(newWord, wordPair.translations));
+            });
 
-        foundPair.ifPresent(pair -> {
-            wordsPairs.remove(pair);
+    BiConsumer<Set<String>, Set<String>> updateTranslations = (oldTranslations, newTranslations) ->
+            findWordPairByTranslations.apply(oldTranslations).ifPresent(wordPair -> {
+                wordsPairs.remove(wordPair);
 
-            Set<String> allNewTranslations = SetUtils.replaceSomeElements(
-                    oldTranslations, newTranslations, pair.translations
-            );
+                Set<String> allNewTranslations = SetUtils.replaceSomeElements(
+                        oldTranslations, newTranslations, wordPair.translations
+                );
 
-            wordsPairs.add(new WordPair(pair.word, allNewTranslations));
-        });
-    }
-
-    Optional<WordPair> get(String word) {
-        return wordsPairs.stream()
-                .filter(wordPair -> wordPair.word.equals(word))
-                .findFirst();
-    }
+                wordsPairs.add(new WordPair(wordPair.word, allNewTranslations));
+            });
 }
