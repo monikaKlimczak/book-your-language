@@ -1,5 +1,6 @@
 package com.monika.klimczak.logic;
 
+import javafx.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -19,7 +20,7 @@ class WordsTest {
     void testEmptyWordsAtStart() {
         Words words = new Words();
 
-        assertTrue(words.areWordsEmpty.get());
+        assertTrue(words.areEmpty.get());
     }
 
     @Test
@@ -53,7 +54,7 @@ class WordsTest {
     void testUpdateTranslation() {
         Words words = new Words();
         words.add.accept("cat", singleton("pies"));
-        words.updateTranslations.accept(singleton("pies"), singleton("kot"));
+        words.updateTranslations.accept("cat", new Pair<>(singleton("pies"), singleton("kot")));
 
         assertFalse(words.contains.apply("cat", singleton("pies")));
         assertTrue(words.contains.apply("cat", singleton("kot")));
@@ -71,24 +72,24 @@ class WordsTest {
     void testUpdateOneTranslationWhenThereAreMultipleTranslations() {
         Words words = new Words();
         words.add.accept("thing", Set.of("kulka", "obiekt"));
-        words.updateTranslations.accept(singleton("kulka"), singleton("rzecz"));
+        words.updateTranslations.accept("thing", new Pair<>(singleton("kulka"), singleton("rzecz")));
 
         assertFalse(words.contains.apply("thing", Set.of("kulka", "obiekt")));
         assertTrue(words.contains.apply("thing", Set.of("rzecz", "obiekt")));
     }
 
     @Test
-    void updateMultipleTranslations() {
+    void testUpdateMultipleTranslations() {
         Words words = new Words();
         words.add.accept("thing", Set.of("kulka", "kubek"));
-        words.updateTranslations.accept(Set.of("kulka", "kubek"), Set.of("rzecz", "obiekt"));
+        words.updateTranslations.accept("thing", new Pair<>(Set.of("kulka", "kubek"), Set.of("rzecz", "obiekt")));
 
         assertFalse(words.contains.apply("thing", Set.of("kulka", "kubek")));
         assertTrue(words.contains.apply("thing", Set.of("rzecz", "obiekt")));
     }
 
     @Test
-    void updateTranslationWhenOtherWordPairHasSameTranslation() {
+    void testUpdateTranslationWhenOtherWordPairHasSameTranslation() {
         Words words = new Words();
         words.add.accept("zip", toSet.apply("zamek"));
         words.add.accept("case", toSet.apply("zamek"));
@@ -100,11 +101,48 @@ class WordsTest {
     }
 
     @Test
-    void mergeWordPairsWhenTheyHaveSameWord() {
+    void testMergeWordPairsWhenTheyHaveSameWord() {
         Words words = new Words();
         words.add.accept("case", toSet.apply("sprawa"));
         words.add.accept("case", toSet.apply("walizka"));
 
         assertTrue(words.contains.apply("case", Set.of("sprawa", "walizka")));
+    }
+
+    @Test
+    void testUpdateWordWhenWordPairNotExist() {
+        Words words = new Words();
+        words.updateWord.accept("word", "wyraz");
+
+        assertTrue(words.areEmpty.get());
+    }
+
+    @Test
+    void testRemoveWordWhenWordPairNotExist() {
+        Words words = new Words();
+        words.remove.accept("word", toSet.apply("wyraz"));
+
+        assertTrue(words.areEmpty.get());
+    }
+
+    @Test
+    void testUpdateTranslationWhenWordPairNotExist() {
+        Words words = new Words();
+        words.updateTranslations.accept("cat", new Pair<>(toSet.apply("kot"), toSet.apply("kotek")));
+
+        assertTrue(words.areEmpty.get());
+    }
+
+    @Test
+    void testUpdateTranslationsWhenTwoWordPairsHasSameTranslation() {
+        Words words = new Words();
+        words.add.accept("hello", toSet.apply("hej"));
+        words.add.accept("hi", toSet.apply("hej"));
+
+        words.updateTranslations.accept("hi", new Pair<>(toSet.apply("hej"), toSet.apply("hejo")));
+
+        assertTrue(words.contains.apply("hello", toSet.apply("hej")));
+        assertFalse(words.contains.apply("hi",  toSet.apply("hej")));
+        assertTrue(words.contains.apply("hi",  toSet.apply("hejo")));
     }
 }

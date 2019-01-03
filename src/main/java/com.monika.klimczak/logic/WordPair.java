@@ -18,10 +18,12 @@ class WordPair {
         this.translations.addAll(translations);
     }
 
+    @EqualsAndHashCode.Exclude
     BiConsumer<String, String> updateTranslation = (translation, newTranslation) -> {
         this.translations.remove(translation);
         this.translations.add(newTranslation);
     };
 
+    @EqualsAndHashCode.Exclude
     Consumer<Set<String>> addTranslations = this.translations::addAll;
 }
